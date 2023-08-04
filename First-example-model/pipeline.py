@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from model import NeuralNet
 
-with open('Python-ML-models/First-example-model/intents.json', 'r') as f:
+with open('intents.json', 'r') as f:
     intents = json.load(f)
 
 all_words = []
@@ -63,7 +63,7 @@ dataset = ChatDataset()
 train_loader = DataLoader(dataset = dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = NeuralNet(input_size, hidden_size, output_size)
+model = NeuralNet(input_size, hidden_size, output_size).to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -84,3 +84,17 @@ for epoch in range(num_epochs):
         print(f'epoch {epoch+1}/{num_epochs}, loss={loss.item():.4f}')
 
 print(f'final loss, loss={loss.item():.4f}')
+
+data ={
+    "model_state": model.state_dict(),
+    "input_size": input_size,
+    "output_size": output_size,
+    "hidden_size": hidden_size,
+    "all_words": all_words,
+    "tags": tags
+}
+
+FILE = "data.pth"
+torch.save(data, FILE)
+
+print(f'training complete. File saved to {FILE}')
